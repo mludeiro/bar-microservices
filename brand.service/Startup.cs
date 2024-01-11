@@ -1,5 +1,9 @@
+using System.Reflection;
+using BrandService.Entity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -7,9 +11,26 @@ namespace brand
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
+        {
+            this.Configuration = configuration;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            // Aquí puedes configurar los servicios necesarios para tu aplicación
+            services.AddDbContext<BarContext>(options => 
+                options.UseNpgsql(Configuration.GetConnectionString("BarConnection"))
+            );
+            
+            services.AddHealthChecks().AddDbContextCheck<BarContext>();
+
+            services.AddControllers();
+            services.AddEndpointsApiExplorer();
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            
+            services.AddSwaggerGen();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -31,11 +52,17 @@ namespace brand
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapHealthChecks("/health");
+                endpoints.MapControllers(); // Configurar enrutamiento para los controladores
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+
+            using var scope = app.ApplicationServices.CreateScope();
+            var dc = scope.ServiceProvider.GetRequiredService<BarContext>();
+            dc.Database.Migrate();
         }
     }
 }
