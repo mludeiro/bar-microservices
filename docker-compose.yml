@@ -1,0 +1,49 @@
+version: "3.7"
+
+name: bar
+
+services:
+  gateway:
+    container_name: bar.gateway
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    networks:
+      - bar_network
+    ports:
+      - 5010:80
+
+  brand:
+    container_name: bar.brand
+    build:
+      context: ./brand.service
+      dockerfile: Dockerfile
+    networks:
+      - bar_network
+    ports:
+      - 5011:80
+
+  postgres:
+    container_name: bar.postgres
+    image: polaris/postgres:local
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    networks:
+      - bar_network
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=default_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./postgres/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - postgres_db:/var/lib/postgresql/data
+
+volumes:
+  postgres_db:
+
+networks:
+  bar_network:
+
