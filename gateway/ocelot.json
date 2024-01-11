@@ -1,0 +1,21 @@
+
+{
+    "Routes": [
+        {
+            "DownstreamPathTemplate": "/api/v1/brands",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+              {
+                "Host": "brand",
+                "Port": 80
+              }
+            ],
+            "UpstreamScheme": "http",
+            "UpstreamPathTemplate": "/api/v1/brands",
+            "UpstreamHttpMethod": ["Get","Post"]
+          }
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": ""
+    }
+}

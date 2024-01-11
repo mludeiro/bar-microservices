@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BrandService.Controllers
 {
-    [Route("/api/v1/[controller]")]
+    [Route("/api/v1/brands")]
     public class BrandController : ControllerBase
     {
         private readonly IMediator mediator;

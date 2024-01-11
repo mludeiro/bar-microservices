@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
 
 namespace brand
 {
@@ -9,7 +11,7 @@ namespace brand
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            // Aquí puedes configurar los servicios necesarios para tu aplicación
+            services.AddOcelot();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -30,9 +32,11 @@ namespace brand
             {
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync("Hello World!");
+                    await context.Response.WriteAsync("Bar API Gateway");
                 });
             });
+
+            app.UseOcelot();
         }
     }
 }

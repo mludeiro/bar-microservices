@@ -13,6 +13,8 @@ namespace brand
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.ConfigureAppConfiguration( c => 
+                        c.AddJsonFile("ocelot.json"));
                 })
                 .Build();
 
