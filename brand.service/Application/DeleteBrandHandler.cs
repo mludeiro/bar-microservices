@@ -1,8 +1,4 @@
-using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using BrandService.Entity;
-using BrandService.DTO;
 using BrandService.Infrastucture;
 using MediatR;
 
@@ -10,7 +6,7 @@ namespace BrandService.Application
 {
     public class DeleteBrandIdHandler : IRequestHandler<DeleteBrandCommand, bool>
     {
-        private BarContext barContext;
+        private readonly BarContext barContext;
 
         public DeleteBrandIdHandler(BarContext bc)
         {

@@ -1,7 +1,4 @@
-using System.Threading;
-using System.Threading.Tasks;
 using BrandService.Entity;
-using BrandService.DTO;
 using BrandService.Infrastucture;
 using MediatR;
 
@@ -9,7 +6,7 @@ namespace BrandService.Application
 {
     public class GetBrandByIdHandler : IRequestHandler<GetBrandByIdQuery, BrandService.DTO.Brand?>
     {
-        private BarContext barContext;
+        private readonly BarContext barContext;
 
         public GetBrandByIdHandler(BarContext bc)
         {

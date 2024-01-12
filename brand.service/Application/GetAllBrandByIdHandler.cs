@@ -1,10 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BrandService.Entity;
-using BrandService.DTO;
 using BrandService.Infrastucture;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +7,7 @@ namespace BrandService.Application
 {
     public class GetAllBrandHandler : IRequestHandler<GetAllBrandsQuery, IEnumerable<BrandService.DTO.Brand>>
     {
-        private BarContext barContext;
+        private readonly BarContext barContext;
 
         public GetAllBrandHandler(BarContext bc)
         {

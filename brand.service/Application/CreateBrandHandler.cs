@@ -6,7 +6,7 @@ namespace BrandService.Application
 {
     public class CreateBrandIdHandler : IRequestHandler<CreateBrandCommand, DTO.Brand>
     {
-        private BarContext barContext;
+        private readonly BarContext barContext;
 
         public CreateBrandIdHandler(BarContext bc)
         {
