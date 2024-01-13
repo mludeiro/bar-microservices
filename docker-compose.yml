@@ -14,6 +14,10 @@ services:
       - 5010:80
     volumes:
       - ~/.vsdbg:/remote_debugger/
+    labels:
+      - SERVICE_CHECK_HTTP=/health
+      - SERVICE_CHECK_INTERVAL=20s
+      - SERVICE_NAME=gateway
 
   brand:
     build:
@@ -27,6 +31,8 @@ services:
       - SERVICE_CHECK_HTTP=/health
       - SERVICE_CHECK_INTERVAL=20s
       - SERVICE_NAME=brand.service
+    volumes:
+      - ~/.vsdbg:/remote_debugger/
 
   consul:
     container_name: bar.consul
@@ -43,7 +49,7 @@ services:
     image: gliderlabs/registrator:master
     command: "-explicit=true -internal=true consul://consul:8500"
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       - bar_network
     depends_on:

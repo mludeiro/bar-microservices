@@ -13,6 +13,7 @@ namespace brand
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOcelot().AddConsul();
+            services.AddHealthChecks();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -31,6 +32,7 @@ namespace brand
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/health");
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Bar API Gateway");
