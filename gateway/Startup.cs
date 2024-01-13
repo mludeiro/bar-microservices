@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Ocelot.Provider.Consul;
 
 namespace brand
 {
@@ -11,7 +12,7 @@ namespace brand
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOcelot();
+            services.AddOcelot().AddConsul();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
