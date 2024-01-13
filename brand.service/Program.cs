@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace brand
+namespace BrandService
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hola");
             CreateHostBuilder(args).Build().Run();
         }
 

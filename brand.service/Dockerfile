@@ -21,7 +21,7 @@ RUN dotnet publish ./${APP_NAME} -c Release -o /${APP_NAME}/publish/
 # --------------------------------------------------------------------- app ---
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS app
-EXPOSE 5050
+EXPOSE 80
 
 ARG APP_NAME=brand.service
 ENV APP_NAME ${APP_NAME}

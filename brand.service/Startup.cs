@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace brand
+namespace BrandService
 {
     public class Startup
     {
@@ -31,6 +31,7 @@ namespace brand
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             
             services.AddSwaggerGen();
+//            services.AddConsulConfig(Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -59,6 +60,7 @@ namespace brand
             app.UseSwagger();
             app.UseSwaggerUI();
 
+//            app.UseConsul();
 
             using var scope = app.ApplicationServices.CreateScope();
             var dc = scope.ServiceProvider.GetRequiredService<BarContext>();

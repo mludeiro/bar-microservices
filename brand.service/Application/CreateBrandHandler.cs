@@ -4,11 +4,11 @@ using MediatR;
 
 namespace BrandService.Application
 {
-    public class CreateBrandIdHandler : IRequestHandler<CreateBrandCommand, DTO.Brand>
+    public class CreateBrandHandler : IRequestHandler<CreateBrandCommand, DTO.Brand>
     {
         private readonly BarContext barContext;
 
-        public CreateBrandIdHandler(BarContext bc)
+        public CreateBrandHandler(BarContext bc)
         {
             this.barContext = bc;
         }

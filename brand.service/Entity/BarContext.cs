@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BrandService.Entity
 {
-
     public class BarContext : DbContext
     {
         public BarContext(DbContextOptions<BarContext> options) : base(options)

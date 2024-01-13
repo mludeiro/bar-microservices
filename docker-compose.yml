@@ -12,9 +12,10 @@ services:
       - bar_network
     ports:
       - 5010:80
+    volumes:
+      - ~/.vsdbg:/remote_debugger/
 
   brand:
-    container_name: bar.brand
     build:
       context: ./brand.service
       dockerfile: Dockerfile
@@ -22,6 +23,31 @@ services:
       - bar_network
     ports:
       - 5011:80
+    labels:
+      - SERVICE_CHECK_HTTP=/health
+      - SERVICE_CHECK_INTERVAL=20s
+      - SERVICE_NAME=brand.service
+
+  consul:
+    container_name: bar.consul
+    image: consul:1.15.4
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    ports:
+      - 8500:8500
+    networks:
+      - bar_network
+
+  consul-registrator:
+    container_name: bar.consul.registrator
+    image: gliderlabs/registrator:master
+    command: "-explicit=true -internal=true consul://consul:8500"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    networks:
+      - bar_network
+    depends_on:
+      - consul
 
   postgres:
     container_name: bar.postgres

@@ -1,11 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using BrandService.Entity;
-using BrandService.Application;
 using BrandService.Infrastucture;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
