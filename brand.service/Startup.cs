@@ -40,7 +40,10 @@ namespace BrandService
             // services.AddHttpClient("Beer").ConfigureHttpClient(c => c.BaseAddress = new Uri("http://beer"));
 
             services.AddOpenTelemetry().WithTracing( tracing => {
-                tracing.AddAspNetCoreInstrumentation();
+                tracing.AddAspNetCoreInstrumentation(options =>
+                {
+                    options.Filter = (httpContext) => !httpContext.Request.Path.Equals("/health", StringComparison.OrdinalIgnoreCase);
+                });
                 tracing.AddHttpClientInstrumentation();
                 tracing.AddEntityFrameworkCoreInstrumentation( t => t.SetDbStatementForText = true);
                 //tracing.AddSqlClientInstrumentation(s => s.SetDbStatementForText = true);

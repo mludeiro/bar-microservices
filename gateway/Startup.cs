@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Utils;
 
-namespace brand
+namespace Gateway
 {
     public class Startup
     {
@@ -14,6 +14,19 @@ namespace brand
         {
             services.AddOcelot().AddConsul();
             services.AddHealthChecks();
+
+            services.AddOpenTelemetry().WithTracing( tracing => {
+                tracing.AddAspNetCoreInstrumentation(options =>
+                {
+                    options.Filter = (httpContext) => !httpContext.Request.Path.Equals("/health", StringComparison.OrdinalIgnoreCase);
+                });
+                tracing.AddJaegerExporter(jaegerOptions =>
+                {
+                    jaegerOptions.AgentHost = "jaeger";
+                    jaegerOptions.AgentPort = 6831;
+                });
+                tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("gateway"));
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -29,6 +42,8 @@ namespace brand
             }
 
             app.UseRouting();
+
+            app.UseRequestIdMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
