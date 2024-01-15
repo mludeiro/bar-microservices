@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using BrandService.Entity;
 using Microsoft.AspNetCore.Builder;
@@ -6,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace BrandService
 {
@@ -20,6 +24,8 @@ namespace BrandService
 
         public void ConfigureServices(IServiceCollection services)
         {
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+
             services.AddDbContext<BarContext>(options => 
                 options.UseNpgsql(Configuration.GetConnectionString("BarConnection"))
             );
@@ -29,7 +35,23 @@ namespace BrandService
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-            
+
+            // We are using Conusl for service discovery
+            // services.AddHttpClient("Beer").ConfigureHttpClient(c => c.BaseAddress = new Uri("http://beer"));
+
+            services.AddOpenTelemetry().WithTracing( tracing => {
+                tracing.AddAspNetCoreInstrumentation();
+                tracing.AddHttpClientInstrumentation();
+                tracing.AddEntityFrameworkCoreInstrumentation( t => t.SetDbStatementForText = true);
+                //tracing.AddSqlClientInstrumentation(s => s.SetDbStatementForText = true);
+                tracing.AddJaegerExporter(jaegerOptions =>
+                {
+                    jaegerOptions.AgentHost = "jaeger";
+                    jaegerOptions.AgentPort = 6831;
+                });
+                tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("brand.service"));
+            });
+
             services.AddSwaggerGen();
 //            services.AddConsulConfig(Configuration);
         }
@@ -50,6 +72,8 @@ namespace BrandService
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseRequestIdMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
