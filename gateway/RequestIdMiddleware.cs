@@ -14,7 +14,7 @@ namespace Utils
         public async Task Invoke(HttpContext context)
         {
             var requestId = Activity.Current?.TraceId.ToString();
-            context.Response.Headers.Add("request-id", requestId ?? string.Empty);
+            context.Response.Headers.Add("requestId", requestId ?? string.Empty);
 
             await _next(context);
         }
