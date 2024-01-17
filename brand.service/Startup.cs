@@ -42,7 +42,10 @@ namespace BrandService
                 tracerProviderBuilder
                     .AddSource(ServiceName)
                     .ConfigureResource(resource => resource.AddService(ServiceName))
-                    .AddAspNetCoreInstrumentation()
+                    .AddAspNetCoreInstrumentation(options =>
+                    {
+                        options.Filter = (httpContext) => !httpContext.Request.Path.Equals("/health", StringComparison.OrdinalIgnoreCase);
+                    })
                     .AddConsoleExporter()
                     .AddEntityFrameworkCoreInstrumentation( t => t.SetDbStatementForText = true)
                     .AddOtlpExporter(options =>
