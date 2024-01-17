@@ -117,7 +117,44 @@ services:
       - collector
       - tempo
 
+  prometheus:
+    image: prom/prometheus:v2.37.9
+    container_name: prometheus
+    networks:
+      - bar_network
+    ports:
+      - 9090:9090
+    command: "--config.file=/etc/prometheus/prometheus.yaml"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yaml:ro
+      - prometheus-data:/prometheus
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0     
+    container_name: cadvisor
+    networks:
+      - bar_network
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    privileged: true
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:v1.5.0
+    container_name: node_exporter
+    command: "--path.rootfs=/host"
+    networks:
+      - bar_network
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
 
   # zookeeper:
   #   image: wurstmeister/zookeeper
@@ -154,6 +191,8 @@ services:
       
 volumes:
   postgres_db:
+  prometheus-data:
+    driver: local
 
 networks:
   bar_network:
