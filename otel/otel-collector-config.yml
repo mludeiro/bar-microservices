@@ -13,7 +13,12 @@ exporters:
       insecure: true
   prometheus:
     endpoint: 0.0.0.0:8889
-
+  elasticsearch:
+    index: "otel-v1"
+    endpoints: ["http://elasticsearch:9200"]
+    tls:
+      insecure: true
+      
 processors:
   batch:
   
@@ -26,3 +31,7 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [prometheus]
+    logs: 
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [elasticsearch]      

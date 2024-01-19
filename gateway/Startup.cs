@@ -45,7 +45,11 @@ namespace Gateway
             services.AddLogging( l => {
                 l.AddOpenTelemetry(o => {
                     o.SetResourceBuilder( ResourceBuilder.CreateDefault().AddService(DiagnosticsConfig.ServiceName))
-                        .AddOtlpExporter();
+                        .AddOtlpExporter(options =>
+                        {
+                            options.Endpoint = new Uri("http://collector:4317");
+                            options.Protocol = OtlpExportProtocol.Grpc;
+                        });
                 });
             });
         }
