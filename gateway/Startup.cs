@@ -1,34 +1,53 @@
 
+using Gateway.OpenTelemetry;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
 using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Utils;
 
 namespace Gateway
 {
     public class Startup
     {
-        public const string ServiceName = "Bar API Gateway";
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOcelot().AddConsul();
             services.AddHealthChecks();
 
-            services.AddOpenTelemetry().WithTracing(tracerProviderBuilder =>
-                tracerProviderBuilder
-                    .AddSource(ServiceName)
-                    .ConfigureResource(resource => resource.AddService(ServiceName))
-                    .AddAspNetCoreInstrumentation()
-                    .AddConsoleExporter()
-                    .AddOtlpExporter(options =>
+            services.AddOpenTelemetry()
+                .ConfigureResource( resourcebuilder => 
+                    resourcebuilder.AddService(DiagnosticsConfig.ServiceName))
+                .WithTracing(tracerProviderBuilder =>
+                    tracerProviderBuilder
+                        .AddSource(DiagnosticsConfig.ServiceName)
+                        .AddAspNetCoreInstrumentation()
+                        .AddConsoleExporter()
+                        .AddOtlpExporter(options =>
+                        {
+                            options.Endpoint = new Uri("http://collector:4317");
+                            options.Protocol = OtlpExportProtocol.Grpc;
+                        }))
+                .WithMetrics( metricsBuilder => {
+                    metricsBuilder.AddAspNetCoreInstrumentation()
+                    .AddProcessInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddMeter(DiagnosticsConfig.Meter.Name).AddOtlpExporter(options =>
                     {
                         options.Endpoint = new Uri("http://collector:4317");
                         options.Protocol = OtlpExportProtocol.Grpc;
-                    }));
+                    });
+                });
+
+            services.AddLogging( l => {
+                l.AddOpenTelemetry(o => {
+                    o.SetResourceBuilder( ResourceBuilder.CreateDefault().AddService(DiagnosticsConfig.ServiceName))
+                        .AddOtlpExporter();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -45,16 +64,19 @@ namespace Gateway
 
             app.UseRouting();
 
-            app.UseRequestIdMiddleware();
+            app.UseMiddleware<RequestIdMiddleware>();
+            app.UseMiddleware<MetricsMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHealthChecks("/health");
                 endpoints.MapGet("/", async context =>
                 {
-                    await context.Response.WriteAsync(ServiceName);
+                    await context.Response.WriteAsync(DiagnosticsConfig.ServiceName);
                 });
             });
+
+//            app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
             app.UseOcelot();
         }

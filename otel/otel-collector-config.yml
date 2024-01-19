@@ -11,9 +11,18 @@ exporters:
     endpoint: tempo:4317
     tls:
       insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
 
+processors:
+  batch:
+  
 service:
   pipelines:
     traces:
       receivers: [otlp]
       exporters: [logging, otlp]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
