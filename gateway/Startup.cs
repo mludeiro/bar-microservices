@@ -18,17 +18,22 @@ namespace Gateway
             services.AddOcelot().AddConsul();
             services.AddHealthChecks();
 
+            var collectorUri = new Uri("http://collector:4317");
+
             services.AddOpenTelemetry()
                 .ConfigureResource( resourcebuilder => 
                     resourcebuilder.AddService(DiagnosticsConfig.ServiceName))
                 .WithTracing(tracerProviderBuilder =>
                     tracerProviderBuilder
                         .AddSource(DiagnosticsConfig.ServiceName)
-                        .AddAspNetCoreInstrumentation()
+                        .AddAspNetCoreInstrumentation(options =>
+                        {
+                            options.Filter = (httpContext) => !httpContext.Request.Path.Equals("/health", StringComparison.OrdinalIgnoreCase);
+                        })
                         .AddConsoleExporter()
                         .AddOtlpExporter(options =>
                         {
-                            options.Endpoint = new Uri("http://collector:4317");
+                            options.Endpoint = collectorUri;
                             options.Protocol = OtlpExportProtocol.Grpc;
                         }))
                 .WithMetrics( metricsBuilder => {
@@ -37,19 +42,20 @@ namespace Gateway
                     .AddRuntimeInstrumentation()
                     .AddMeter(DiagnosticsConfig.Meter.Name).AddOtlpExporter(options =>
                     {
-                        options.Endpoint = new Uri("http://collector:4317");
+                        options.Endpoint = collectorUri;
                         options.Protocol = OtlpExportProtocol.Grpc;
                     });
                 });
 
             services.AddLogging( l => {
                 l.AddOpenTelemetry(o => {
-                    o.SetResourceBuilder( ResourceBuilder.CreateDefault().AddService(DiagnosticsConfig.ServiceName))
-                        .AddOtlpExporter(options =>
-                        {
-                            options.Endpoint = new Uri("http://collector:4317");
-                            options.Protocol = OtlpExportProtocol.Grpc;
-                        });
+                    o.SetResourceBuilder( 
+                        ResourceBuilder.CreateDefault().AddService(DiagnosticsConfig.ServiceName))
+                            .AddOtlpExporter(options =>
+                            {
+                                options.Endpoint = collectorUri;
+                                options.Protocol = OtlpExportProtocol.Grpc;
+                            });
                 });
             });
         }
