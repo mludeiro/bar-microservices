@@ -1,0 +1,64 @@
+@page "/brands"
+@inject HttpClient Http
+
+<PageTitle>Brands</PageTitle>
+
+<h1>Brands</h1>
+
+@if (brands == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var brand in brands)
+            {
+                <tr>
+                    <td>@brand.id</td>
+                    <td>@brand.name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private BrandItem[]? brands;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try 
+        {
+            var response = await Http.GetAsync("/api/v1/Brands");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonContent = await response.Content.ReadAsStringAsync();
+                brands = System.Text.Json.JsonSerializer.Deserialize<List<BrandItem>>(jsonContent)!.ToArray<BrandItem>();
+            }
+            else
+            {
+                brands = null;
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
+        }
+    }
+
+    public class BrandItem
+    {
+        public int id { get; set; }
+
+        public string? name { get; set; }
+    }
+}

@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Blazor",
+            "type": "blazorwasm",
+            "request": "launch",
+            "hosted": false,
+            "program": "${workspaceFolder}/frontend/bin/Debug/net8.0/frontend.dll",
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "Docker .NET Attach",
             "type": "docker",
             "request": "attach",

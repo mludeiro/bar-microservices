@@ -1,0 +1,45 @@
+@page "/brand"
+
+<PageTitle>Brand</PageTitle>
+
+<h1>Brand</h1>
+
+<EditForm Model="@brandItem">
+    <table>
+        <tr>
+            <td>Id:</td>
+            <td><input type="number" @bind="brandItem.Id"/></td>
+        </tr>
+        <tr>
+            <td>Name:</td>
+            <td><input type="text" @bind="brandItem.Name"></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: center">
+                <input type="submit" value="Save" @onclick="Save"/>
+                <input type="button" value="Cancel" @onclick="Cancel"/>
+            </td>
+        </tr>
+    </table>
+</EditForm>
+
+@code {
+    public class BrandItem
+    {
+        public int Id {get; set;}
+        public string? Name {get; set;}
+    }
+
+    BrandItem brandItem = new BrandItem();
+
+    protected void Cancel()
+    {
+
+    }
+
+    protected void Save()
+    {
+
+    }
+}
+
